@@ -117,19 +117,16 @@ def clean_process_set(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryru
                   save_process_set(current_ps, filename))
 
     kill_set = set()
+    self_pid = os.getpid()
     saved_cmds = [cmd for pid, cmd in saved_ps.difference(current_ps)]
     for pid, cmd in set(current_ps).difference(set(saved_ps)):
         if cmd in saved_cmds:
             # by popping we ensure that we will maintain the original number
             # of processes with the same command.
             saved_cmds.pop()
-        else:
+        elif pid != self_pid:
+            log.debug("Adding pid:%i cmd:'%s' to kill set.", pid, cmd)
             kill_set.add(pid)
-
-    self_pid = os.getpid()
-    if self_pid in kill_set:
-        # otherwise we'll commit suicide
-        kill_set.remove(self_pid)
 
     fail_set = kill_processes(kill_set, dryrun=dryrun)
     # if we fail any on the first try, send them a kill -9
