@@ -5,11 +5,14 @@ which have been started since the last snapshot was taken. This is useful for re
 
 Example:
 
-    First run, process list is saved to /var/tmp/cleanslate. No processes killed.
-    ``./cleanslate.py someuser``
+On the first run the process list is saved to /var/tmp/cleanslate. No processes are killed.
+       
+        ./cleanslate.py someuser
 
-    A new process is created by someuser...
-    ``top &``
+A new process is created by someuser...
+    
+        top &
 
-    The new process is killed, along with any others which were created.
-    ``./cleanslave.py someuser``
+The new process is killed, along with any others which were created since the first run.
+     
+        ./cleanslave.py someuser
