@@ -10,7 +10,7 @@ periodically without rebooting.
 '''
 
 import os
-import re
+import time
 import errno
 import shlex
 import subprocess
@@ -34,37 +34,49 @@ def pid_exists(pid):
             raise e
 
 
-def get_process_list(for_user):
+def get_process_set(for_user):
     '''
-    Gather all of the processes running for some user. Only supports posix
-    systems.
+    Gather all of the processes running for some user. Returns a set of
+    (pid, cmd) tuples: {(pid, cmd), ...}
     '''
-    ps_cmd = 'ps -U {}'.format(for_user)
+    # TODO: Add windows support via ps_cmd='TASKLIST /S localhost /U {}'
+    ps_cmd = 'ps -o "pid args" -U {}'.format(for_user)
     ps = subprocess.check_output(shlex.split(ps_cmd))
-    return {int(p.group(1)) for p in re.finditer(' (\d+) ', ps.replace(os.linesep, ' '))}
+
+    process_set = set()
+    for ps_line in ps.split(os.linesep)[1:]:
+        ps_line = ps_line.strip().split()
+        if len(ps_line) > 1 and ps_line[0].isdigit():
+            process_set.add((int(ps_line[0]), ' '.join(ps_line[1:])))
+
+    return process_set
 
 
-def save_process_list(process_list, filename=FILENAME_DEFAULT):
+def save_process_set(process_set, filename=FILENAME_DEFAULT):
     '''
     Save the current process list as a csv file.
     '''
-    with open(filename, 'w') as process_list_file:
-        process_list_file.write(','.join([unicode(p) for p in process_list]))
-    return True
+    with open(filename, 'w') as process_set_file:
+        for pid, cmd in process_set:
+            process_set_file.write('{} {}{}'.format(pid, cmd, os.linesep))
+    return filename
 
 
-def get_saved_process_list(filename=FILENAME_DEFAULT):
+def get_saved_process_set(filename=FILENAME_DEFAULT):
     '''
-    Returns a saved process list as a set, or None if the file does not exist.
+    Returns a saved process set {(pid, cmd), ... }, or None if the file does not exist.
     '''
-    process_list = None
+    process_set = None
     if os.path.exists(filename):
-        with open(filename, 'r') as process_list_file:
-            process_list = {int(p) for p in process_list_file.read().split(',')}
-    return process_list
+        process_set = set()
+        with open(filename, 'r') as process_set_file:
+            for ps_line in process_set_file:
+                ps_line = ps_line.strip().split()
+                process_set.add(((int(ps_line[0]), ' '.join(ps_line[1:]))))
+    return process_set
 
 
-def kill_process_list(kill_set, sig=15, dryrun=False):
+def kill_processes(kill_set, sig=15, dryrun=False):
     '''
     Kill any processes not in the whitelist. Returns a set of any pids
     which were not successfully killed.
@@ -75,6 +87,9 @@ def kill_process_list(kill_set, sig=15, dryrun=False):
         if dryrun is not False:
             try:
                 os.kill(ps, sig)
+                # We should give the process a little time to die before
+                # checking to see if we succeeded
+                time.sleep(.001)
                 if pid_exists(ps):
                     raise Exception('')
             except Exception as e:
@@ -83,31 +98,45 @@ def kill_process_list(kill_set, sig=15, dryrun=False):
     return fail_set
 
 
-def clean_process_list(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryrun=False):
+def clean_process_set(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryrun=False):
     '''
-    If a saved process_list exists, use that as a PID whitelist, killing
+    If a saved process_set exists, use that as a PID whitelist, killing
     all processes which are not a part of it. If no such file exists, create
     one. Returns a list of processes which were killed.
     '''
-    current_ps = get_process_list(for_user)
-    ps_whitelist = get_saved_process_list(filename)
-    ps_whitelist.add(os.getpid())  # Otherwise we'll commit suicide!
+    current_ps = get_process_set(for_user)
+    saved_ps = get_saved_process_set(filename)
 
-    if not ps_whitelist:
-        log.debug('No saved process list found, creating one at %s', filename)
-        save_process_list(current_ps, filename)
+    if not saved_ps:
+        log.debug('No saved process list found, creating one at %s',
+                  save_process_set(current_ps, filename))
         return set()
 
     if snapshot is True:
-        log.debug('Saving a new process list snapshot at %s', filename)
-        save_process_list(current_ps, filename)
+        log.debug('Saving a new process list snapshot at %s',
+                  save_process_set(current_ps, filename))
 
-    kill_set = set(current_ps).difference(set(ps_whitelist))
-    fail_set = kill_process_list(kill_set, dryrun=dryrun)
-    print(fail_set)
+    kill_set = set()
+    saved_cmds = [cmd for pid, cmd in saved_ps.difference(current_ps)]
+    for pid, cmd in set(current_ps).difference(set(saved_ps)):
+        if cmd in saved_cmds:
+            # by popping we ensure that we will maintain the original number
+            # of processes with the same command.
+            saved_cmds.pop()
+        else:
+            kill_set.add(pid)
+
+    self_pid = os.getpid()
+    if self_pid in kill_set:
+        # otherwise we'll commit suicide
+        kill_set.remove(self_pid)
+
+    fail_set = kill_processes(kill_set, dryrun=dryrun)
     # if we fail any on the first try, send them a kill -9
-    fail_set = kill_process_list(fail_set, sig=9, dryrun=dryrun)
-    log.warn('Failed to kill: %s', fail_set)
+    fail_set = kill_processes(fail_set, sig=9, dryrun=dryrun)
+
+    if fail_set:
+        log.warn('Failed to kill: %s', fail_set)
 
     return fail_set.difference(kill_set)
 
@@ -142,6 +171,6 @@ if __name__ == '__main__':
     if args.dryrun:
         log.info('** dry-run mode **')
 
-    killed_processes = clean_process_list(args.user, args.filename, args.snapshot, args.dryrun)
+    killed_processes = clean_process_set(args.user, args.filename, args.snapshot, args.dryrun)
     if killed_processes:
         print('({}): killed processes {}'.format(__name__, killed_processes))
