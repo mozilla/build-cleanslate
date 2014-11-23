@@ -89,7 +89,7 @@ def kill_processes(kill_set, sig=15, dryrun=False):
                 os.kill(ps, sig)
                 # We should give the process a little time to die before
                 # checking to see if we succeeded
-                time.sleep(.001)
+                time.sleep(.01)
                 if pid_exists(ps):
                     raise Exception('')
             except Exception as e:
