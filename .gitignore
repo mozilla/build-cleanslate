@@ -1,0 +1,5 @@
+*.pyc
+.*.sw?
+*.egg
+*.egg-info
+.ropeproject
