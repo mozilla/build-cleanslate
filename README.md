@@ -19,7 +19,8 @@ Cleanslate will ensure that, on its next run, no more than two processes with th
 
 On the first run the process list is saved to /var/tmp/cleanslate. No processes are killed.
 
-        ./cleanslate.py
+        ./cleanslate.py -v
+        2014-11-23 23:38:44,316 - DEBUG - No saved process list found, creating one at /var/tmp/cleanslate
 
 A new process is created by someuser...
 
@@ -27,4 +28,8 @@ A new process is created by someuser...
 
 The new process is killed, along with any others which were created since the first run.
 
-        ./cleanslate.py
+        ./cleanslate.py -v
+        2014-11-23 23:29:45,364 - DEBUG - Adding pid:26168 cmd:'top' to kill set.
+        2014-11-23 23:29:45,364 - DEBUG - Killing process 26168 with SIGNAL 15
+        2014-11-23 23:29:45,374 - DEBUG - (failed to kill 26168 via sig 15)
+        2014-11-23 23:29:45,375 - DEBUG - Killing process 26168 with SIGNAL 9
