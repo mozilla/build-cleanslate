@@ -167,5 +167,5 @@ if __name__ == '__main__':
 
     if args.dryrun:
         log.info('** dry-run mode **')
-
-    clean_process_set(args.user, args.filename, args.snapshot, args.dryrun)
+    else:
+        clean_process_set(args.user, args.filename, args.snapshot, args.dryrun)
