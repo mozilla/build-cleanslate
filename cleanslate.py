@@ -19,7 +19,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-SNAPSHOT_FILENAME_DEFAULT = '/var/tmp/cleanslate'
+FILENAME_DEFAULT = '/var/tmp/cleanslate'
 
 
 def pid_exists(pid):
@@ -44,7 +44,7 @@ def get_process_list(for_user):
     return {int(p.group(1)) for p in re.finditer(' (\d+) ', ps.replace(os.linesep, ' '))}
 
 
-def save_process_list(process_list, filename=SNAPSHOT_FILENAME_DEFAULT):
+def save_process_list(process_list, filename=FILENAME_DEFAULT):
     '''
     Save the current process list as a csv file.
     '''
@@ -53,7 +53,7 @@ def save_process_list(process_list, filename=SNAPSHOT_FILENAME_DEFAULT):
     return True
 
 
-def get_saved_process_list(filename=SNAPSHOT_FILENAME_DEFAULT):
+def get_saved_process_list(filename=FILENAME_DEFAULT):
     '''
     Returns a saved process list as a set, or None if the file does not exist.
     '''
@@ -82,7 +82,7 @@ def kill_process_list(kill_set, sig=15, dryrun=False):
     return fail_set
 
 
-def clean_process_list(for_user, filename=SNAPSHOT_FILENAME_DEFAULT, snapshot=False, dryrun=False):
+def clean_process_list(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryrun=False):
     '''
     If a saved process_list exists, use that as a PID whitelist, killing
     all processes which are not a part of it. If no such file exists, create
@@ -117,7 +117,7 @@ def make_argparser():
     parser.add_argument('for_user', help='Clean processes owned by this user.')
     parser.add_argument('-q', '--quiet', dest='loglevel', action='store_const', const=logging.WARN, help='quiet')
     parser.add_argument('-v', '--verbose', dest='loglevel', action='store_const', const=logging.DEBUG, help='verbose')
-    parser.add_argument('-f', '--filename', default=SNAPSHOT_FILENAME_DEFAULT, help='Location of saved process lists.')
+    parser.add_argument('-f', '--filename', default=FILENAME_DEFAULT, help='Location of saved process lists.')
     parser.add_argument('--snapshot', dest='snapshot', action='store_const', const=True, help='Create a new process list snapshot.')
     parser.add_argument('--dryrun', dest='dryrun', action='store_const', const=True)
     return parser
