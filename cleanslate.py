@@ -49,7 +49,7 @@ def save_process_list(process_list, filename=FILENAME_DEFAULT):
     Save the current process list as a csv file.
     '''
     with open(filename, 'w') as process_list_file:
-       process_list_file.write(','.join([unicode(p) for p in process_list]))
+        process_list_file.write(','.join([unicode(p) for p in process_list]))
     return True
 
 
@@ -75,7 +75,8 @@ def kill_process_list(kill_set, sig=15, dryrun=False):
         if dryrun is not False:
             try:
                 os.kill(ps, sig)
-                if pid_exists(ps): raise Exception('')
+                if pid_exists(ps):
+                    raise Exception('')
             except Exception as e:
                 log.debug('(failed to kill %i via sig %i) %s', ps, sig, e.message)
                 fail_set.add(ps)
@@ -114,10 +115,20 @@ def clean_process_list(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryr
 def make_argparser():
     import argparse
     parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument('-U', '--user', help='Clean processes owned by this user.')
+    parser.add_argument(
+        '-U',
+        '--user',
+        default=os.environ.get('CLEANSLATE_USER', os.getlogin()),
+        help='Clean processes owned by this user.'
+    )
     parser.add_argument('-q', '--quiet', dest='loglevel', action='store_const', const=logging.WARN, help='quiet')
     parser.add_argument('-v', '--verbose', dest='loglevel', action='store_const', const=logging.DEBUG, help='verbose')
-    parser.add_argument('-f', '--filename', default=FILENAME_DEFAULT, help='Location of saved process lists.')
+    parser.add_argument(
+        '-f',
+        '--filename',
+        default=os.environ.get('CLEANSLATE_FILENAME', FILENAME_DEFAULT),
+        help='Location of saved process lists.'
+    )
     parser.add_argument('--snapshot', dest='snapshot', action='store_const', const=True, help='Create a new process list snapshot.')
     parser.add_argument('--dryrun', dest='dryrun', action='store_const', const=True)
     return parser
@@ -131,8 +142,6 @@ if __name__ == '__main__':
     if args.dryrun:
         log.info('Running in dry-run mode.')
 
-    for_user = os.environ.get('CLEANSLATE_USER', args.user)
-    filename = os.environ.get('CLEANSLATE_FILENAME', args.filename)
-
-    killed_processes = clean_process_list(for_user, filename, args.snapshot, args.dryrun)
-    if killed_processes: print('({}): killed processes {}'.format(__name__, killed_processes))
+    killed_processes = clean_process_list(args.user, args.filename, args.snapshot, args.dryrun)
+    if killed_processes:
+        print('({}): killed processes {}'.format(__name__, killed_processes))
