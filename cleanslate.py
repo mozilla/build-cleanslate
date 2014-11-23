@@ -84,7 +84,7 @@ def kill_processes(kill_set, sig=15, dryrun=False):
     fail_set = set()
     for ps in kill_set:
         log.debug('Killing process %i with SIGNAL %i', ps, sig)
-        if dryrun is not False:
+        if not dryrun:
             try:
                 os.kill(ps, sig)
                 # We should give the process a little time to die before
@@ -167,5 +167,4 @@ if __name__ == '__main__':
 
     if args.dryrun:
         log.info('** dry-run mode **')
-    else:
-        clean_process_set(args.user, args.filename, args.snapshot, args.dryrun)
+    clean_process_set(args.user, args.filename, args.snapshot, args.dryrun)
