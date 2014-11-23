@@ -138,6 +138,8 @@ def clean_process_set(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryru
     if fail_set:
         log.warn('Failed to kill: %s', fail_set)
 
+    return fail_set.difference(kill_set)
+
 
 def make_argparser():
     import argparse
@@ -168,3 +170,5 @@ if __name__ == '__main__':
 
     if args.dryrun:
         log.info('** dry-run mode **')
+
+    clean_process_set(args.user, args.filename, args.snapshot, args.dryrun)
