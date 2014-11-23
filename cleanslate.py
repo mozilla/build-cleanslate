@@ -140,7 +140,7 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=args.loglevel)
 
     if args.dryrun:
-        log.info('Running in dry-run mode.')
+        log.info('** dry-run mode **')
 
     killed_processes = clean_process_list(args.user, args.filename, args.snapshot, args.dryrun)
     if killed_processes:
