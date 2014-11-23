@@ -15,4 +15,4 @@ A new process is created by someuser...
 
 The new process is killed, along with any others which were created since the first run.
 
-        ./cleanslave.py
+        ./cleanslate.py
