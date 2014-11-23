@@ -114,7 +114,7 @@ def clean_process_list(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryr
 def make_argparser():
     import argparse
     parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument('for_user', help='Clean processes owned by this user.')
+    parser.add_argument('-U', '--user', help='Clean processes owned by this user.')
     parser.add_argument('-q', '--quiet', dest='loglevel', action='store_const', const=logging.WARN, help='quiet')
     parser.add_argument('-v', '--verbose', dest='loglevel', action='store_const', const=logging.DEBUG, help='verbose')
     parser.add_argument('-f', '--filename', default=FILENAME_DEFAULT, help='Location of saved process lists.')
@@ -131,5 +131,8 @@ if __name__ == '__main__':
     if args.dryrun:
         log.info('Running in dry-run mode.')
 
-    killed_processes = clean_process_list(args.for_user, args.filename, args.snapshot, args.dryrun)
+    for_user = os.environ.get('CLEANSLATE_USER', args.user)
+    filename = os.environ.get('CLEANSLATE_FILENAME', args.filename)
+
+    killed_processes = clean_process_list(for_user, filename, args.snapshot, args.dryrun)
     if killed_processes: print('({}): killed processes {}'.format(__name__, killed_processes))
