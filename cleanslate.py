@@ -12,7 +12,6 @@ periodically without rebooting.
 import os
 import time
 import errno
-import shlex
 import subprocess
 
 import logging
@@ -34,20 +33,30 @@ def pid_exists(pid):
             raise e
 
 
+def _parse_ps_line(ps_line):
+    '''
+    Parse some line of input returned from a ps command and return a tuple:
+    (pid, command)
+    '''
+    ps_line = ps_line.strip().split(None, 1)
+    if len(ps_line) > 1 and ps_line[0].isdigit():
+        return (int(ps_line[0]), ps_line[1])
+
+
 def get_process_set(for_user):
     '''
     Gather all of the processes running for some user. Returns a set of
     (pid, cmd) tuples: {(pid, cmd), ...}
     '''
     # TODO: Add windows support via ps_cmd='TASKLIST /S localhost /U {}'
-    ps_cmd = 'ps -o "pid args" -U {}'.format(for_user)
-    ps = subprocess.check_output(shlex.split(ps_cmd))
+    ps_cmd = ['ps', '-o', 'pid args', '-U', for_user]
+    ps = subprocess.check_output(ps_cmd)
 
     process_set = set()
     for ps_line in ps.split(os.linesep)[1:]:
-        ps_line = ps_line.strip().split()
-        if len(ps_line) > 1 and ps_line[0].isdigit():
-            process_set.add((int(ps_line[0]), ' '.join(ps_line[1:])))
+        ps_tuple = _parse_ps_line(ps_line)
+        if ps_tuple:
+            process_set.add(ps_tuple)
 
     return process_set
 
@@ -71,8 +80,9 @@ def get_saved_process_set(filename=FILENAME_DEFAULT):
         process_set = set()
         with open(filename, 'r') as process_set_file:
             for ps_line in process_set_file:
-                ps_line = ps_line.strip().split()
-                process_set.add(((int(ps_line[0]), ' '.join(ps_line[1:]))))
+                ps_tuple = _parse_ps_line(ps_line)
+                if ps_tuple:
+                    process_set.add(ps_tuple)
     return process_set
 
 
@@ -110,9 +120,9 @@ def clean_process_set(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryru
     if not saved_ps:
         log.debug('No saved process list found, creating one at %s',
                   save_process_set(current_ps, filename))
-        return set()
+        return
 
-    if snapshot is True:
+    if snapshot:
         log.debug('Saving a new process list snapshot at %s',
                   save_process_set(current_ps, filename))
 
@@ -121,16 +131,17 @@ def clean_process_set(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryru
     saved_cmds = [cmd for pid, cmd in saved_ps.difference(current_ps)]
     for pid, cmd in set(current_ps).difference(set(saved_ps)):
         if cmd in saved_cmds:
-            # by popping we ensure that we will maintain the original number
+            # by removing we ensure that we will maintain the original number
             # of processes with the same command.
-            saved_cmds.pop()
+            saved_cmds.remove(cmd)
         elif pid != self_pid:
             log.debug("Adding pid:%i cmd:'%s' to kill set.", pid, cmd)
             kill_set.add(pid)
 
     fail_set = kill_processes(kill_set, dryrun=dryrun)
     # if we fail any on the first try, send them a kill -9
-    fail_set = kill_processes(fail_set, sig=9, dryrun=dryrun)
+    if fail_set:
+        fail_set = kill_processes(fail_set, sig=9, dryrun=dryrun)
 
     if fail_set:
         log.warn('Failed to kill: %s', fail_set)
