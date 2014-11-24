@@ -12,8 +12,10 @@ temp_filename = tempfile.mktemp()
 
 
 def rm_temp_file():
-    if os.path.exists(temp_filename):
+    try:
         os.remove(temp_filename)
+    except Exception as e:
+        print('(Failed to remove {}) {}'.format(temp_filename, e.message))
 
 
 def test_pid_exists():
