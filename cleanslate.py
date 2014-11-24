@@ -24,11 +24,11 @@ FILENAME_DEFAULT = '/var/tmp/cleanslate'
 
 def pid_exists(pid):
     try:
-        # If sending the signal fails, the process does not exist
         os.kill(pid, 0)
         return True
     except OSError as e:
         if e.errno == errno.ESRCH:
+            # If sending the signal fails w/ a process does not exist error
             return False
         else:
             raise e
