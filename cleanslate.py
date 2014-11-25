@@ -155,7 +155,7 @@ def make_argparser():
     parser.add_argument(
         '-U',
         '--user',
-        default=os.environ.get('CLEANSLATE_USER', os.getlogin()),
+        default=os.getenv('USER'),
         help='Clean processes owned by this user.'
     )
     parser.add_argument('-q', '--quiet', dest='loglevel', action='store_const', const=logging.WARN, help='quiet')
