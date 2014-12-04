@@ -10,6 +10,7 @@ periodically without rebooting.
 '''
 
 import os
+import sys
 import time
 import errno
 import subprocess
@@ -145,6 +146,7 @@ def clean_process_set(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryru
 
     if fail_set:
         log.warn('Failed to kill: %s', fail_set)
+        sys.exit(2)
 
     return fail_set.difference(kill_set)
 
