@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name="cleanslate",
-    version="1.0",
+    version="1.1",
     description="Reset a users running processes to a previously recorded state.",
     author="Morgan Phillips",
     author_email="winter2718@gmail.com",
