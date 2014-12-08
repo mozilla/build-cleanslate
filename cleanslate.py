@@ -10,7 +10,6 @@ periodically without rebooting.
 '''
 
 import os
-import sys
 import time
 import errno
 import subprocess
@@ -100,7 +99,7 @@ def kill_processes(kill_set, sig=15, dryrun=False):
                 os.kill(ps, sig)
                 # We should give the process a little time to die before
                 # checking to see if we succeeded
-                time.sleep(.01)
+                time.sleep(.1)
                 if pid_exists(ps):
                     raise Exception('')
             except Exception as e:
@@ -145,8 +144,7 @@ def clean_process_set(for_user, filename=FILENAME_DEFAULT, snapshot=False, dryru
         fail_set = kill_processes(fail_set, sig=9, dryrun=dryrun)
 
     if fail_set:
-        log.warn('Failed to kill: %s', fail_set)
-        sys.exit(2)
+        raise Exception('Failed to kill: %s' % fail_set)
 
     return fail_set.difference(kill_set)
 
