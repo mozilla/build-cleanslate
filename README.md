@@ -1,9 +1,20 @@
 # cleanslate
 
-Records a user's processes at some point in time, and/or, kills any processes
-which have been started since the last snapshot was taken. This is useful for resetting an environment periodically without rebooting.
+Cleanslate performs platform specific cleanup actions via "cleaner" modules. Each module works to provide a fresh environment without the need for a reboot.
 
-## Which processes are killed?
+# Cleaners
+
+## Process Cleaner (Darwin, Linux)
+
+Records a user's processes at some point in time, and/or, kills any processes
+which have been started since the last snapshot was taken.
+
+### Arguments
+
+    -U, --user Work on processes own by this particular user. Defaults to ${USER}
+    -f, --filename Location of process snapshot file. Defaults to /var/tmp/cleanslate
+
+### Which processes are killed?
 
 Processes are whitelisted based on their name + arguments *not* by pid. This prevents managed processes which die and are restarted from being killed by cleanslate. That being the case, cleanslate will enforce that no more than the original number of processes are allowed to run.
 
@@ -15,11 +26,11 @@ So, if a snapshot is taken where the same file is opened twice:
 
 Cleanslate will ensure that, on its next run, no more than two processes with the command 'vim a.py' are running.
 
-## How are processes killed?
+### How are processes killed?
 
 On Posix systems cleanslate will attempt to kill processes via SIGTERM (in hopes of a graceful shutdown). If this fails it will try once more with a SIGKILL.
 
-## Example:
+### Example:
 
 On the first run the process list is saved to /var/tmp/cleanslate. No processes are killed.
 
