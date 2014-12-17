@@ -2,7 +2,7 @@
 
 Cleanslate performs platform specific cleanup actions via "cleaner" modules. Each module works to provide a fresh environment without the need for a reboot.
 
-# cleaners
+# Cleaners
 
 ## Process Cleaner (Darwin, Linux)
 
@@ -11,8 +11,8 @@ which have been started since the last snapshot was taken.
 
 ### Arguments
 
-    `-U, --user` Work on processes own by this particular user. Defaults to ${USER}
-    `-f, --filename` Location of process snapshot file. Defaults to /var/tmp/cleanslate
+    -U, --user Work on processes own by this particular user. Defaults to ${USER}
+    -f, --filename Location of process snapshot file. Defaults to /var/tmp/cleanslate
 
 ### Which processes are killed?
 
