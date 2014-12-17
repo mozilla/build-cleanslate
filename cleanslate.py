@@ -26,11 +26,12 @@ def make_argparser(supported_cleaners=None):
 
 
 if __name__ == '__main__':
-    # We're employing the, usually, not-so-good practice of using import *
-    # to encourage registration of all available cleaners supported on the
-    # platform with the platform_cleaners.AVAILABLE_CLEANERS set. Supported
-    # cleaners are added to the set via metaclass.
-    from platform_cleaners.process import *  # noqa
+    # We're employing the, usually, not-so-good practice of importing classes
+    # without ever using them to coerce registration of all available cleaners
+    # supported on the platform with the platform_cleaners.AVAILABLE_CLEANERS set.
+    # Supported cleaners are added to the set via metaclass.
+    import platform_cleaners.process  # noqa
+    import platform_cleaners.service  # noqa
 
     from platform_cleaners import AVAILABLE_CLEANERS
 

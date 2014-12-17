@@ -4,7 +4,8 @@
 
 # A global set of all PlatformCleaner classes which pass the "check_platform"
 # test. Allows cleanslate to work across all platforms with no need for complex
-# import code.
+# import code. All children of BasePlatformCleaner will be automagically added
+# to it at import time.
 AVAILABLE_CLEANERS = set()
 
 
@@ -20,7 +21,9 @@ class PlatformCleanerMeta(type):
 
 class BasePlatformCleaner(object):
     '''
-    An "Abstract" class for Cleaner objects.
+    An "Abstract" class for Cleaner objects. Because its metaclass
+    is PlatformCleanerMeta, all children of this class will show up
+    in the AVAILABLE_CLEANERS set.
     '''
 
     __metaclass__ = PlatformCleanerMeta
