@@ -16,7 +16,6 @@ setup(
     scripts=["cleanslate.py"],
     url="https://github.com/mrrrgn/build-cleanslate",
     setup_requires=[
-        "six",
         "nose==1.3.4",
     ],
 )

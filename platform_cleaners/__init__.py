@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from six import add_metaclass
-
 # A global set of all PlatformCleaner classes which pass the "check_platform"
 # test. Allows cleanslate to work across all platforms with no need for complex
 # import code.
@@ -20,11 +18,13 @@ class PlatformCleanerMeta(type):
             AVAILABLE_CLEANERS.add(self)
 
 
-@add_metaclass(PlatformCleanerMeta)
 class BasePlatformCleaner(object):
     '''
     An "Abstract" class for Cleaner objects.
     '''
+
+    __metaclass__ = PlatformCleanerMeta
+
     def add_arguments(self, argument_parser):
         '''
         Allows a cleaner to attach new arguments to an arg parser.
