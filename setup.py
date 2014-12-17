@@ -6,14 +6,17 @@ from setuptools import setup
 
 setup(
     name="cleanslate",
-    version="1.2",
+    version="1.3",
     description="Reset a users running processes to a previously recorded state.",
     author="Morgan Phillips",
     author_email="winter2718@gmail.com",
-    py_packages=[
-        "cleanslate",
+    packages=[
+        "platform_cleaners",
     ],
     scripts=["cleanslate.py"],
     url="https://github.com/mrrrgn/build-cleanslate",
-    setup_requires=["nose==1.3.4"],
+    setup_requires=[
+        "six",
+        "nose==1.3.4",
+    ],
 )
