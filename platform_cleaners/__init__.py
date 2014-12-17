@@ -25,7 +25,8 @@ class BasePlatformCleaner(object):
 
     __metaclass__ = PlatformCleanerMeta
 
-    def add_arguments(self, argument_parser):
+    @staticmethod
+    def add_arguments(argument_parser):
         '''
         Allows a cleaner to attach new arguments to an arg parser.
         '''

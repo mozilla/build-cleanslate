@@ -36,18 +36,18 @@ class PosixProcessCleaner(BasePlatformCleaner):
         if platform.system() in ('Darwin', 'Linux'):
             return True
 
-    @classmethod
-    def add_arguments(cls, parser):
+    @staticmethod
+    def add_arguments(parser):
         parser.add_argument(
             '-U',
             '--user',
-            default=os.getenv('USER', cls.filename),
+            default=os.getenv('USER'),
             help='Clean processes owned by this user.'
         )
         parser.add_argument(
             '-f',
             '--filename',
-            default=os.environ.get('CLEANSLATE_FILENAME', ),
+            default=os.environ.get('CLEANSLATE_FILENAME'),
             help='Location of saved process lists.'
         )
 
