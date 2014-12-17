@@ -38,13 +38,20 @@ class PosixProcessCleaner(BasePlatformCleaner):
 
     @staticmethod
     def add_arguments(parser):
-        parser.add_argument(
+        sub_parser = parser.add_subparsers()
+        processes_parser = sub_parser.add_parser(
+            'process_cleaner',
+            description='Records a user\'s processes at some point in time, '
+            'and/or, kills any proccesses which have been started since its '
+            'prior run.'
+        )
+        processes_parser.add_argument(
             '-U',
             '--user',
             default=os.getenv('USER'),
             help='Clean processes owned by this user.'
         )
-        parser.add_argument(
+        processes_parser.add_argument(
             '-f',
             '--filename',
             default=os.environ.get('CLEANSLATE_FILENAME'),
