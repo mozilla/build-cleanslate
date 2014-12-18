@@ -28,11 +28,16 @@ class BasePlatformCleaner(object):
 
     __metaclass__ = PlatformCleanerMeta
 
-    @staticmethod
-    def add_arguments(argument_parser):
+    # child classes should set this to create a custom sub parser name
+    sub_parser_name = None
+
+    @classmethod
+    def add_arguments(cls, argument_parser, sub_parser):
         '''
         Allows a cleaner to attach new arguments to an arg parser.
         '''
+        # Every cleaner needs a sub parser in order to run
+        sub_parser.add_parser(cls._sub_parser_name or cls.__class__.__name__)
         return argument_parser
 
     @staticmethod

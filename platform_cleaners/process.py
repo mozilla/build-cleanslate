@@ -21,6 +21,8 @@ class PosixProcessCleaner(BasePlatformCleaner):
     periodically without rebooting.
     '''
 
+    sub_parser_name = 'process_cleaner'
+
     for_user = os.environ.get('USER')
     filename = '/var/tmp/cleanslate'
 
@@ -36,11 +38,10 @@ class PosixProcessCleaner(BasePlatformCleaner):
         if platform.system() in ('Darwin', 'Linux'):
             return True
 
-    @staticmethod
-    def add_arguments(parser):
-        sub_parser = parser.add_subparsers()
+    @classmethod
+    def add_arguments(cls, parser, sub_parser):
         processes_parser = sub_parser.add_parser(
-            'process_cleaner',
+            cls.sub_parser_name,
             description='Records a user\'s processes at some point in time, '
             'and/or, kills any proccesses which have been started since its '
             'prior run.'
