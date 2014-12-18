@@ -14,10 +14,10 @@ log = logging.getLogger(__name__)
 def make_argparser(supported_cleaners=None):
     import argparse
     parser = argparse.ArgumentParser(__doc__)
-
+    sub_parser = parser.add_subparsers()
     if supported_cleaners:
         for cleaner in supported_cleaners:
-            cleaner.add_arguments(parser)
+            cleaner.add_arguments(parser, sub_parser)
 
     parser.add_argument('-q', '--quiet', dest='loglevel', action='store_const', const=logging.WARN, help='quiet')
     parser.add_argument('-v', '--verbose', dest='loglevel', action='store_const', const=logging.DEBUG, help='verbose')

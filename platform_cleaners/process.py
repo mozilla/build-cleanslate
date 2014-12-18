@@ -37,8 +37,7 @@ class PosixProcessCleaner(BasePlatformCleaner):
             return True
 
     @staticmethod
-    def add_arguments(parser):
-        sub_parser = parser.add_subparsers()
+    def add_arguments(parser, sub_parser):
         processes_parser = sub_parser.add_parser(
             'process_cleaner',
             description='Records a user\'s processes at some point in time, '
