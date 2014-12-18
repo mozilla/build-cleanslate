@@ -47,5 +47,5 @@ if __name__ == '__main__':
     for cleaner in AVAILABLE_CLEANERS:
         # Here we make the choice to only allow cleaners to run which have set
         # up sub parsers.
-        if cleaner.sub_parser_name in args.sub_parsers or cleaner.__class__.__name in args.sub_parsers:
+        if cleaner.sub_parser_name in args.sub_parsers or cleaner.__class__.__name__ in args.sub_parsers:
             cleaner(**args_dict).enforce(dryrun=args.dryrun)
