@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 def make_argparser(supported_cleaners=None):
     import argparse
     parser = argparse.ArgumentParser(__doc__)
-    sub_parser = parser.add_subparsers()
+    sub_parser = parser.add_subparsers(dest='sub_parsers')
     if supported_cleaners:
         for cleaner in supported_cleaners:
             cleaner.add_arguments(parser, sub_parser)
@@ -45,4 +45,7 @@ if __name__ == '__main__':
         log.info('** dry-run mode **')
 
     for cleaner in AVAILABLE_CLEANERS:
-        cleaner(**args_dict).enforce(dryrun=args.dryrun)
+        # Here we make the choice to only allow cleaners to run which have set
+        # up sub parsers.
+        if cleaner.sub_parser_name in args.sub_parsers or cleaner.__class__.__name in args.sub_parsers:
+            cleaner(**args_dict).enforce(dryrun=args.dryrun)
